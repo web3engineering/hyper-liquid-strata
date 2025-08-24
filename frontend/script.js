@@ -5,7 +5,8 @@ let searchTimeout;
 let currentTraderWallet = '';
 
 // API configuration
-const API_BASE_URL = 'http://144.76.39.46:3004';
+const API_BASE_URL = 'http://localhost:3000';
+// const API_BASE_URL = 'http://144.76.39.46:3004';
 
 // Utility functions
 function formatNumber(num) {
@@ -247,7 +248,7 @@ function renderTraders(traders) {
     if (traders.length === 0) {
         tradersTableBody.innerHTML = `
             <tr>
-                <td colspan="7" style="text-align: center; padding: 3rem; color: #718096;">
+                <td colspan="10" style="text-align: center; padding: 3rem; color: #718096;">
                     <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
                     <h3>No traders found</h3>
                     <p>Try adjusting your search or period filter</p>
@@ -268,6 +269,13 @@ function renderTraders(traders) {
             <td class="trades-cell">${trader.total_trades}</td>
             <td class="winrate-cell">${formatPercentage(trader.win_rate)}</td>
             <td class="avgtrade-cell">${formatNumber(trader.avg_trade_size)}</td>
+            <td class="roi-cell ${getRoiColor(trader.prct_wallet_roi)}">
+                ${formatPercentage(trader.prct_wallet_roi)}
+            </td>
+            <td class="roi-cell ${getRoiColor(trader.prct_avg_order_roi)}">
+                ${formatPercentage(trader.prct_avg_order_roi)}
+            </td>
+            <td class="coins-cell">${trader.cnt_unique_coins || 0}</td>
         </tr>
     `).join('');
     

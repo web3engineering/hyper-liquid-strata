@@ -11,6 +11,7 @@ export interface TraderStats {
   cnt_trade_days: number;
   prct_wallet_roi: number;
   prct_avg_order_roi: number;
+  cnt_unique_coins: number;
   period: string;
 }
 
@@ -47,6 +48,9 @@ export class TraderService {
         cnt_unique_orders as total_trades,
         prct_win_rate as win_rate,
         avg_trade_usd_size as avg_trade_size,
+        prct_wallet_roi,
+        prct_avg_order_roi,
+        cnt_unique_coins,
         '${period}' as period
       FROM hyperliquid.mv_wallet_stats_by_period
       ${periodFilter}
@@ -71,6 +75,7 @@ export class TraderService {
         cnt_trade_days,
         prct_wallet_roi,
         prct_avg_order_roi,
+        cnt_unique_coins,
         'ALL' as period
       FROM hyperliquid.mv_wallet_stats_by_period
       WHERE wallet_address = '${wallet}' AND agg_period_type = 'ALL'
@@ -144,6 +149,9 @@ export class TraderService {
         cnt_unique_orders as total_trades,
         prct_win_rate as win_rate,
         avg_trade_usd_size as avg_trade_size,
+        prct_wallet_roi,
+        prct_avg_order_roi,
+        cnt_unique_coins,
         '${period}' as period
       FROM hyperliquid.mv_wallet_stats_by_period
       WHERE wallet_address LIKE '%${searchTerm}%' ${periodFilter}

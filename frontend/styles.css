@@ -401,6 +401,29 @@ body {
     letter-spacing: 0.3px;
 }
 
+.roi-cell {
+    text-align: center;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    letter-spacing: 0.3px;
+}
+
+.coins-cell {
+    text-align: center;
+    font-weight: 500;
+    color: #cbd5e1;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    letter-spacing: 0.3px;
+}
+
+.roi-positive {
+    color: #10b981;
+}
+
+.roi-negative {
+    color: #ef4444;
+}
+
 .actions-cell {
     text-align: center;
 }
