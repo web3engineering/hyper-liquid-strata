@@ -240,16 +240,154 @@ body {
 .pnl-cell {
     font-weight: 700;
     font-size: 1rem;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    letter-spacing: 0.5px;
 }
 
 .pnl-positive {
     color: #10b981;
-    text-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
 }
 
 .pnl-negative {
     color: #ef4444;
-    text-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Order Type Color Coding */
+.order-long {
+    color: #10b981;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: all 0.2s ease;
+}
+
+.order-long:hover {
+    background: rgba(16, 185, 129, 0.2);
+    transform: scale(1.05);
+}
+
+.order-short {
+    color: #ef4444;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: all 0.2s ease;
+}
+
+.order-short:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.05);
+}
+
+/* Fill Type Color Coding */
+.fill-close-long {
+    color: #10b981;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: all 0.2s ease;
+}
+
+.fill-close-long:hover {
+    background: rgba(16, 185, 129, 0.2);
+    transform: scale(1.05);
+}
+
+.fill-close-short {
+    color: #ef4444;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: all 0.2s ease;
+}
+
+.fill-close-short:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.05);
+}
+
+/* PnL Color Coding for Data Tables */
+.data-table .pnl-positive {
+    color: #10b981;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: all 0.2s ease;
+}
+
+.data-table .pnl-positive:hover {
+    background: rgba(16, 185, 129, 0.2);
+    transform: scale(1.05);
+}
+
+.data-table .pnl-negative {
+    color: #ef4444;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: all 0.2s ease;
+}
+
+.data-table .pnl-negative:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.05);
+}
+
+/* ROI Color Coding */
+.roi-positive {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.roi-negative {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* ROI Color Coding for Data Tables - Same as PnL */
+.data-table .roi-positive {
+    color: #10b981;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: all 0.2s ease;
+}
+
+.data-table .roi-positive:hover {
+    background: rgba(16, 185, 129, 0.2);
+    transform: scale(1.05);
+}
+
+.data-table .roi-negative {
+    color: #ef4444;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: all 0.2s ease;
+}
+
+.data-table .roi-negative:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.05);
+}
+
+/* PnL Color Coding for Overview Cards - Text only */
+.overview-value.pnl-positive {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.overview-value.pnl-negative {
+    color: #ef4444;
+    font-weight: 600;
 }
 
 .volume-cell,
@@ -259,6 +397,8 @@ body {
     text-align: center;
     font-weight: 500;
     color: #cbd5e1;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    letter-spacing: 0.3px;
 }
 
 .actions-cell {
@@ -332,6 +472,8 @@ body {
     font-weight: 800;
     color: #f1f5f9;
     margin-bottom: 0.5rem;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    letter-spacing: 0.5px;
 }
 
 .overview-label {
@@ -470,6 +612,25 @@ body {
     font-weight: 600;
     color: #94a3b8;
     font-size: 0.9rem;
+}
+
+.data-table td {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+}
+
+/* Ensure colored cells maintain proper alignment */
+.data-table td.order-long,
+.data-table td.order-short,
+.data-table td.fill-close-long,
+.data-table td.fill-close-short,
+.data-table td.pnl-positive,
+.data-table td.pnl-negative,
+.data-table td.roi-positive,
+.data-table td.roi-negative {
+    text-align: center;
+    vertical-align: middle;
 }
 
 .data-table tr:hover {
@@ -630,3 +791,15 @@ body {
         padding: 1rem;
     }
 }
+
+/* ROI Color Coding for Overview Cards - Same as Total PnL */
+.overview-value.roi-positive {
+    color: #10b981 !important;
+    font-weight: 600;
+}
+
+.overview-value.roi-negative {
+    color: #ef4444 !important;
+    font-weight: 600;
+}
+

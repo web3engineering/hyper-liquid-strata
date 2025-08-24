@@ -12,14 +12,19 @@ function formatNumber(num) {
     if (num === null || num === undefined) return '0';
     if (typeof num === 'string') num = parseFloat(num);
     
+    // Add comma separators for better readability
+    const addCommas = (n) => {
+        return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    };
+    
     if (Math.abs(num) >= 1e9) {
-        return (num / 1e9).toFixed(2) + 'B';
+        return addCommas((num / 1e9).toFixed(2)) + 'B';
     } else if (Math.abs(num) >= 1e6) {
-        return (num / 1e6).toFixed(2) + 'M';
+        return addCommas((num / 1e6).toFixed(2)) + 'M';
     } else if (Math.abs(num) >= 1e3) {
-        return (num / 1e3).toFixed(2) + 'K';
+        return addCommas((num / 1e3).toFixed(2)) + 'K';
     } else {
-        return num.toFixed(2);
+        return addCommas(num.toFixed(2));
     }
 }
 
@@ -27,15 +32,40 @@ function formatCurrency(num) {
     if (num === null || num === undefined) return '$0.00';
     if (typeof num === 'string') num = parseFloat(num);
     
-    const sign = num >= 0 ? '+' : '';
-    return `${sign}$${Math.abs(num).toFixed(2)}`;
+    const sign = num >= 0 ? '+' : '-';
+    const absNum = Math.abs(num);
+    
+    // Add comma separators and format with appropriate precision
+    const addCommas = (n) => {
+        return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    };
+    
+    // Format based on magnitude for better readability
+    if (absNum >= 1e9) {
+        return `${sign}$${addCommas((absNum / 1e9).toFixed(2))}B`;
+    } else if (absNum >= 1e6) {
+        return `${sign}$${addCommas((absNum / 1e6).toFixed(2))}M`;
+    } else if (absNum >= 1e3) {
+        return `${sign}$${addCommas((absNum / 1e3).toFixed(2))}K`;
+    } else if (absNum >= 100) {
+        return `${sign}$${addCommas(absNum.toFixed(0))}`;
+    } else if (absNum >= 10) {
+        return `${sign}$${addCommas(absNum.toFixed(1))}`;
+    } else {
+        return `${sign}$${addCommas(absNum.toFixed(2))}`;
+    }
 }
 
 function formatPercentage(num) {
     if (num === null || num === undefined) return '0%';
     if (typeof num === 'string') num = parseFloat(num);
     
-    return `${num.toFixed(1)}%`;
+    // Add comma separators for better readability
+    const addCommas = (n) => {
+        return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    };
+    
+    return `${addCommas(num.toFixed(1))}%`;
 }
 
 function formatWallet(wallet) {
@@ -231,7 +261,7 @@ function renderTraders(traders) {
         <tr data-wallet="${trader.wallet}">
             <td class="rank-cell">${index + 1}</td>
             <td class="wallet-cell" title="${trader.wallet}">${formatWallet(trader.wallet)}</td>
-            <td class="pnl-cell ${trader.pnl >= 0 ? 'pnl-positive' : 'pnl-negative'}">
+            <td class="pnl-cell ${getPnlColor(trader.pnl)}">
                 ${formatCurrency(trader.pnl)}
             </td>
             <td class="volume-cell">${formatNumber(trader.total_volume)}</td>
@@ -285,11 +315,11 @@ function renderTraderOverview(traderDetails) {
             <div class="overview-label">Trading Days</div>
         </div>
         <div class="overview-card">
-            <div class="overview-value">${formatPercentage(stats.prct_wallet_roi || 0)}</div>
+            <div class="overview-value ${getRoiColor(stats.prct_wallet_roi || 0)}">${formatPercentage(stats.prct_wallet_roi || 0)}</div>
             <div class="overview-label">Wallet ROI</div>
         </div>
         <div class="overview-card">
-            <div class="overview-value">${formatPercentage(stats.prct_avg_order_roi || 0)}</div>
+            <div class="overview-value ${getRoiColor(stats.prct_avg_order_roi || 0)}">${formatPercentage(stats.prct_avg_order_roi || 0)}</div>
             <div class="overview-label">Avg Order ROI</div>
         </div>
     `;
@@ -315,14 +345,29 @@ function renderOrdersTable(orders) {
                         <tr>
                             ${headers.map(header => {
                                 let value = order[header];
+                                let cellClass = '';
+                                
                                 if (header === 'utc_order_dttm') {
                                     value = formatTimestamp(value);
                                 } else if (header === 'wallet_address') {
                                     value = formatWallet(value);
+                                } else if (header === 'side' || header === 'order_type' || header === 'type') {
+                                    // Apply color coding for order type
+                                    cellClass = getOrderTypeColor(value);
+                                    value = value || '-';
+                                } else if (header.includes('pnl') || header.includes('pnl')) {
+                                    // Apply color coding for PnL fields
+                                    cellClass = getPnlColor(value);
+                                    value = typeof value === 'number' ? formatCurrency(value) : (value || '-');
+                                } else if (header.includes('roi') || header.includes('roi')) {
+                                    // Apply color coding for ROI fields
+                                    cellClass = getRoiColor(value);
+                                    value = typeof value === 'number' ? formatPercentage(value) : (value || '-');
                                 } else if (typeof value === 'number') {
                                     value = formatNumber(value);
                                 }
-                                return `<td title="${order[header]}">${value || '-'}</td>`;
+                                
+                                return `<td class="${cellClass}" title="${order[header]}">${value || '-'}</td>`;
                             }).join('')}
                         </tr>
                     `).join('')}
@@ -353,19 +398,32 @@ function renderFillsTable(fills) {
                         <tr>
                             ${headers.map(header => {
                                 let value = fill[header];
+                                let cellClass = '';
                                 
                                 // Format specific fields
                                 if (header === 'utc_fill_dttm') {
                                     value = value ? new Date(value).toLocaleString() : '-';
-                                } else if (header === 'price' || header === 'size' || header === 'closed_pnl' || header === 'fee') {
-                                    value = value ? (typeof value === 'number' ? value.toLocaleString() : value) : '-';
+                                } else if (header === 'price' || header === 'size') {
+                                    value = value ? formatNumber(value) : '-';
+                                } else if (header === 'closed_pnl') {
+                                    // Apply color coding for PnL
+                                    cellClass = getPnlColor(value);
+                                    value = value ? formatCurrency(value) : '-';
+                                } else if (header.includes('roi') || header.includes('roi')) {
+                                    // Apply color coding for ROI fields
+                                    cellClass = getRoiColor(value);
+                                    value = typeof value === 'number' ? formatPercentage(value) : (value || '-');
+                                } else if (header === 'fee') {
+                                    value = value ? formatNumber(value) : '-';
                                 } else if (header === 'coin') {
                                     value = value || '-';
                                 } else if (header === 'fill_type') {
+                                    // Apply color coding for fill type
+                                    cellClass = getFillTypeColor(value);
                                     value = value || '-';
                                 }
                                 
-                                return `<td title="${fill[header]}">${value || '-'}</td>`;
+                                return `<td class="${cellClass}" title="${fill[header]}">${value || '-'}</td>`;
                             }).join('')}
                         </tr>
                     `).join('')}
@@ -505,4 +563,39 @@ window.openSmartSearchAI = openSmartSearchAI;
 function openSmartSearchAI() {
     console.log('Opening Smart Search AI...');
     window.open('http://144.76.39.46:3003/', '_blank');
+}
+
+// Color coding helper functions
+function getOrderTypeColor(orderType) {
+    if (!orderType) return '';
+    const type = orderType.toString().toLowerCase();
+    if (type.includes('long') || type.includes('buy')) {
+        return 'order-long';
+    } else if (type.includes('short') || type.includes('sell')) {
+        return 'order-short';
+    }
+    return '';
+}
+
+function getFillTypeColor(fillType) {
+    if (!fillType) return '';
+    const type = fillType.toString().toLowerCase();
+    if (type.includes('close long') || type.includes('close_long')) {
+        return 'fill-close-long';
+    } else if (type.includes('close short') || type.includes('close_short')) {
+        return 'fill-close-short';
+    }
+    return '';
+}
+
+function getPnlColor(value) {
+    if (value === null || value === undefined) return '';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    return num >= 0 ? 'pnl-positive' : 'pnl-negative';
+}
+
+function getRoiColor(value) {
+    if (value === null || value === undefined) return '';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    return num >= 0 ? 'roi-positive' : 'roi-negative';
 }
