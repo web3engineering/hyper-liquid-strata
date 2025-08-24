@@ -1,21 +1,19 @@
 {
-  "name": "frontend",
+  "name": "hyperliquid-dashboard-frontend",
   "version": "1.0.0",
-  "description": "Frontend for HyperLiquid ClickHouse Data Viewer",
-  "main": "index.js",
+  "description": "Frontend for HyperLiquid trading dashboard",
+  "main": "script.js",
   "scripts": {
-    "start": "live-server --port=8080 --open=/",
-    "dev": "live-server --port=8080 --open=/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "live-server --port=3005 --host=localhost --open=/",
+    "dev": "live-server --port=3005 --host=localhost --open=/"
   },
-  "keywords": ["clickhouse", "data-viewer", "hyperliquid"],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "chart.js": "^4.4.0"
   },
   "devDependencies": {
     "live-server": "^1.2.2"
-  }
+  },
+  "keywords": ["hyperliquid", "trading", "dashboard", "frontend"],
+  "author": "",
+  "license": "MIT"
 }

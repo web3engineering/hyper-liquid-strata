@@ -5,7 +5,7 @@ let searchTimeout;
 let currentTraderWallet = '';
 
 // API configuration
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:3004';
 
 // Utility functions
 function formatNumber(num) {

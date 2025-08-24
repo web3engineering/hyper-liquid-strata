@@ -1,44 +1,26 @@
 @echo off
-echo 🚀 Starting HyperLiquid Trader Dashboard...
+echo 🚀 Starting HyperLiquid Dashboard...
+echo 📊 Backend will run on port 3004
+echo 🌐 Frontend will run on port 3005
+echo.
 
-REM Check if .env file exists in backend
-if not exist "backend\.env" (
-    echo ⚠️  No .env file found in backend directory.
-    echo 📝 Please create backend\.env with your ClickHouse credentials:
-    echo.
-    echo CLICKHOUSE_HOST=your_host
-    echo CLICKHOUSE_PORT=8123
-    echo CLICKHOUSE_DATABASE=hyperliquid
-    echo CLICKHOUSE_USERNAME=your_username
-    echo CLICKHOUSE_PASSWORD=your_password
-    echo.
-    echo 💡 You can copy from backend\env.example
-    pause
-    exit /b 1
-)
+REM Kill any existing processes on these ports
+echo 🔄 Stopping any existing processes on ports 3004 and 3005...
+taskkill /f /im node.exe 2>nul
+timeout /t 2 /nobreak >nul
 
-REM Start backend
-echo 🔧 Starting backend server...
+echo 🔧 Starting backend (NestJS) on port 3004...
 cd backend
-call npm install
-start "Backend Server" npm run start:dev
-cd ..
+start "Backend" npm run start:dev
 
-REM Wait a moment for backend to start
-timeout /t 3 /nobreak >nul
-
-REM Start frontend
-echo 🎨 Starting frontend...
-cd frontend
-call npm install
-start "Frontend Server" npm start
-cd ..
+echo 🎨 Starting frontend (Live Server) on port 3005...
+cd ../frontend
+start "Frontend" npm run dev
 
 echo.
 echo ✅ Dashboard started successfully!
-echo 🌐 Backend: http://localhost:3000
-echo 🎨 Frontend: http://localhost:8080
+echo 📊 Backend: http://localhost:3004
+echo 🌐 Frontend: http://localhost:3005
 echo.
-echo Both servers are now running in separate windows.
-echo Close the windows to stop the servers.
-pause
+echo Press any key to exit...
+pause >nul
