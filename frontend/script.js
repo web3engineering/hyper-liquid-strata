@@ -3,6 +3,21 @@ let currentTraders = [];
 let currentPeriod = 'ALL';
 let searchTimeout;
 let currentTraderWallet = '';
+let filteredTraders = [];
+let isFiltered = false;
+let filterTimeout;
+
+// Filter state
+let currentFilters = {
+    winRateMin: null,
+    winRateMax: null,
+    totalRoiMin: null,
+    totalRoiMax: null,
+    avgOrderRoiMin: null,
+    avgOrderRoiMax: null,
+    tradingDaysMin: null,
+    tradingCoinsMin: null
+};
 
 // API configuration
 const API_BASE_URL = 'http://localhost:3000';
@@ -112,6 +127,188 @@ function showError(message) {
     }, 5000);
 }
 
+// Filter functions
+async function applyFilters() {
+    // Clear previous timeout
+    if (filterTimeout) {
+        clearTimeout(filterTimeout);
+    }
+    
+    // Debounce filter application for better performance
+    filterTimeout = setTimeout(async () => {
+        await applyFiltersImmediate();
+    }, 300);
+}
+
+async function applyFiltersImmediate() {
+    // Get current filter values
+    currentFilters = {
+        winRateMin: getFilterValue('winRateMin'),
+        winRateMax: getFilterValue('winRateMax'),
+        totalRoiMin: getFilterValue('totalRoiMin'),
+        totalRoiMax: getFilterValue('totalRoiMax'),
+        avgOrderRoiMin: getFilterValue('avgOrderRoiMin'),
+        avgOrderRoiMax: getFilterValue('avgOrderRoiMax'),
+        tradingDaysMin: getFilterValue('tradingDaysMin'),
+        tradingCoinsMin: getFilterValue('tradingCoinsMin')
+    };
+    
+    // Check if any filters are active
+    const hasActiveFilters = Object.values(currentFilters).some(value => value !== null);
+    
+    // Show/hide filter status
+    const filterStatus = document.getElementById('filterStatus');
+    if (filterStatus) {
+        filterStatus.style.display = hasActiveFilters ? 'block' : 'none';
+    }
+    
+    if (hasActiveFilters) {
+        // Use server-side filtering
+        try {
+            showLoading();
+            const filteredTraders = await fetchFilteredTraders(currentPeriod, currentFilters);
+            isFiltered = true;
+            renderTraders(filteredTraders);
+        } catch (error) {
+            console.error('Error applying filters:', error);
+            showError('Failed to apply filters. Please try again.');
+            // Fallback to showing all traders
+            isFiltered = false;
+            renderTraders(currentTraders);
+        } finally {
+            hideLoading();
+        }
+    } else {
+        // No filters active, show all traders
+        isFiltered = false;
+        renderTraders(currentTraders);
+    }
+}
+
+async function fetchFilteredTraders(period, filters) {
+    try {
+        // Build query parameters
+        const params = new URLSearchParams();
+        params.append('period', period);
+        
+        // Add filter parameters
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+                params.append(key, value.toString());
+            }
+        });
+        
+        const response = await fetch(`${API_BASE_URL}/traders/filtered?${params.toString()}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        // Handle ClickHouse response format
+        const traders = result.data || result;
+        
+        // Ensure we return an array
+        if (!Array.isArray(traders)) {
+            console.warn('Filtered traders API returned non-array data:', traders);
+            return [];
+        }
+        
+        return traders;
+    } catch (error) {
+        console.error('Error fetching filtered traders:', error);
+        throw error;
+    }
+}
+
+function clearFilters() {
+    // Reset all filter inputs
+    document.getElementById('winRateMin').value = '';
+    document.getElementById('winRateMax').value = '';
+    document.getElementById('totalRoiMin').value = '';
+    document.getElementById('totalRoiMax').value = '';
+    document.getElementById('avgOrderRoiMin').value = '';
+    document.getElementById('avgOrderRoiMax').value = '';
+    document.getElementById('tradingDaysMin').value = '';
+    document.getElementById('tradingCoinsMin').value = '';
+    
+    // Reset filter state
+    currentFilters = {
+        winRateMin: null,
+        winRateMax: null,
+        totalRoiMin: null,
+        totalRoiMax: null,
+        avgOrderRoiMin: null,
+        avgOrderRoiMax: null,
+        tradingDaysMin: null,
+        tradingCoinsMin: null
+    };
+    
+    // Hide filter status
+    const filterStatus = document.getElementById('filterStatus');
+    if (filterStatus) {
+        filterStatus.style.display = 'none';
+    }
+    
+    // Show all traders by reloading from server
+    isFiltered = false;
+    loadTraders();
+}
+
+function resetFilterUI() {
+    // Reset all filter inputs
+    document.getElementById('winRateMin').value = '';
+    document.getElementById('winRateMax').value = '';
+    document.getElementById('totalRoiMin').value = '';
+    document.getElementById('totalRoiMax').value = '';
+    document.getElementById('avgOrderRoiMin').value = '';
+    document.getElementById('avgOrderRoiMax').value = '';
+    document.getElementById('tradingDaysMin').value = '';
+    document.getElementById('tradingCoinsMin').value = '';
+    
+    // Reset filter state
+    currentFilters = {
+        winRateMin: null,
+        winRateMax: null,
+        totalRoiMin: null,
+        totalRoiMax: null,
+        avgOrderRoiMin: null,
+        avgOrderRoiMax: null,
+        tradingDaysMin: null,
+        tradingCoinsMin: null
+    };
+    
+    // Hide filter status
+    const filterStatus = document.getElementById('filterStatus');
+    if (filterStatus) {
+        filterStatus.style.display = 'none';
+    }
+    
+    // Reset filtered state
+    isFiltered = false;
+}
+
+function getFilterValue(elementId) {
+    const element = document.getElementById(elementId);
+    if (!element || !element.value.trim()) return null;
+    
+    const value = parseFloat(element.value);
+    if (isNaN(value)) return null;
+    
+    // Handle percentage inputs (0-100 range)
+    if (elementId.includes('winRate') || elementId.includes('Roi')) {
+        if (value < 0 || value > 100) return null;
+    }
+    
+    // Handle minimum value inputs (non-negative)
+    if (elementId.includes('Min') && value < 0) return null;
+    
+    return value;
+}
+
+// Remove old client-side filter functions since we're using server-side filtering now
+
 // API functions
 async function fetchTraders(period = 'ALL') {
     try {
@@ -155,6 +352,9 @@ async function searchTraders() {
     // Debounce search
     searchTimeout = setTimeout(async () => {
         try {
+            // Reset filters when searching
+            resetFilterUI();
+            
             const traders = await searchTradersAPI(searchTerm, period);
             renderTraders(traders);
         } catch (error) {
@@ -234,7 +434,11 @@ function renderTraders(traders) {
         traders = [];
     }
     
-    currentTraders = traders;
+    // Update current traders if not filtering
+    if (!isFiltered) {
+        currentTraders = traders;
+    }
+    
     const tradersTableBody = document.getElementById('tradersTableBody');
     const totalTradersElement = document.getElementById('totalTraders');
     
@@ -243,15 +447,22 @@ function renderTraders(traders) {
         return;
     }
     
-    totalTradersElement.textContent = traders.length;
+    // Show total count with filter indicator
+    if (isFiltered) {
+        totalTradersElement.textContent = `${traders.length} of ${currentTraders.length}`;
+        totalTradersElement.classList.add('filtered');
+    } else {
+        totalTradersElement.textContent = traders.length;
+        totalTradersElement.classList.remove('filtered');
+    }
     
     if (traders.length === 0) {
         tradersTableBody.innerHTML = `
             <tr>
-                <td colspan="10" style="text-align: center; padding: 3rem; color: #718096;">
+                <td colspan="11" style="text-align: center; padding: 3rem; color: #718096;">
                     <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                    <h3>No traders found</h3>
-                    <p>Try adjusting your search or period filter</p>
+                    <h3>${isFiltered ? 'No traders match your filters' : 'No traders found'}</h3>
+                    <p>${isFiltered ? 'Try adjusting your filter criteria' : 'Try adjusting your search or period filter'}</p>
                 </td>
             </tr>
         `;
@@ -275,6 +486,7 @@ function renderTraders(traders) {
             <td class="roi-cell ${getRoiColor(trader.prct_avg_order_roi)}">
                 ${formatPercentage(trader.prct_avg_order_roi)}
             </td>
+            <td class="trading-days-cell">${trader.cnt_trade_days || 0}</td>
             <td class="coins-cell">${trader.cnt_unique_coins || 0}</td>
         </tr>
     `).join('');
@@ -522,6 +734,9 @@ async function loadTraders() {
     const period = document.getElementById('period').value;
     currentPeriod = period;
     
+    // Reset filter UI when loading new data
+    resetFilterUI();
+    
     const traders = await fetchTraders(period);
     renderTraders(traders);
 }
@@ -566,6 +781,9 @@ window.openTraderDetails = openTraderDetails;
 window.goBackToMain = goBackToMain;
 window.switchTab = switchTab;
 window.openSmartSearchAI = openSmartSearchAI;
+window.applyFilters = applyFilters;
+window.clearFilters = clearFilters;
+window.resetFilterUI = resetFilterUI; // Add this line to expose the new function
 
 // Smart Search AI function
 function openSmartSearchAI() {

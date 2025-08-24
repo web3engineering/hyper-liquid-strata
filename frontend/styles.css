@@ -173,6 +173,191 @@ body {
     box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
+.stats-summary.filtered {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.stats-summary.filtered::before {
+    content: "🔍 ";
+    margin-right: 0.25rem;
+}
+
+/* Filters Section */
+.filters-section {
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #334155;
+    backdrop-filter: blur(10px);
+}
+
+.filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #334155;
+}
+
+.filters-header h3 {
+    color: #f1f5f9;
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filters-header h3 i {
+    color: #3b82f6;
+}
+
+.filter-status {
+    display: flex;
+    align-items: center;
+}
+
+.filter-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+}
+
+.filters-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 180px;
+    flex: 1;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    cursor: help;
+    position: relative;
+}
+
+.filter-group label:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 0.5rem;
+}
+
+.filter-group label:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+    margin-bottom: -5px;
+    z-index: 1000;
+}
+
+.filter-group input {
+    padding: 0.75rem 1rem;
+    border: 2px solid #334155;
+    border-radius: 8px;
+    background: #1e293b;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.filter-group input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.filter-group input:hover {
+    border-color: #475569;
+}
+
+.filters-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.filters-actions .btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filters-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive design for filters */
+@media (max-width: 1200px) {
+    .filters-row {
+        gap: 1rem;
+    }
+    
+    .filter-group {
+        min-width: 160px;
+    }
+}
+
+@media (max-width: 768px) {
+    .filters-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .filter-group {
+        min-width: 100%;
+    }
+    
+    .filters-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .filters-actions .btn {
+        min-width: 140px;
+    }
+}
+
 /* Main Table */
 .table-container {
     overflow-x: auto;
@@ -398,14 +583,13 @@ body {
     font-weight: 500;
     color: #cbd5e1;
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-    letter-spacing: 0.3px;
 }
 
-.roi-cell {
+.trading-days-cell {
     text-align: center;
-    font-weight: 600;
+    font-weight: 500;
+    color: #cbd5e1;
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-    letter-spacing: 0.3px;
 }
 
 .coins-cell {
@@ -413,7 +597,6 @@ body {
     font-weight: 500;
     color: #cbd5e1;
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-    letter-spacing: 0.3px;
 }
 
 .roi-positive {

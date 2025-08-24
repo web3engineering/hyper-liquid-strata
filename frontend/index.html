@@ -46,6 +46,62 @@
                     </div>
                 </div>
                 
+                <!-- Filters Section -->
+                <div class="filters-section">
+                    <div class="filters-header">
+                        <h3><i class="fas fa-filter"></i> Filter Traders</h3>
+                        <div class="filter-status" id="filterStatus" style="display: none;">
+                            <span class="filter-badge">
+                                <i class="fas fa-info-circle"></i> Filters Active
+                            </span>
+                        </div>
+                    </div>
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label for="winRateMin" title="Filter traders with win rate greater than or equal to this value">Win Rate Min (%)</label>
+                            <input type="number" id="winRateMin" min="0" max="100" placeholder="0" step="0.1" oninput="applyFilters()">
+                        </div>
+                        <div class="filter-group">
+                            <label for="winRateMax" title="Filter traders with win rate less than or equal to this value">Win Rate Max (%)</label>
+                            <input type="number" id="winRateMax" min="0" max="100" placeholder="100" step="0.1" oninput="applyFilters()">
+                        </div>
+                        <div class="filter-group">
+                            <label for="totalRoiMin" title="Filter traders with total ROI greater than or equal to this value">Total ROI Min (%)</label>
+                            <input type="number" id="totalRoiMin" min="0" max="100" placeholder="0" step="0.1" oninput="applyFilters()">
+                        </div>
+                        <div class="filter-group">
+                            <label for="totalRoiMax" title="Filter traders with total ROI less than or equal to this value">Total ROI Max (%)</label>
+                            <input type="number" id="totalRoiMax" min="0" max="100" placeholder="100" step="0.1" oninput="applyFilters()">
+                        </div>
+                    </div>
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label for="avgOrderRoiMin" title="Filter traders with average order ROI greater than or equal to this value">Avg Order ROI Min (%)</label>
+                            <input type="number" id="avgOrderRoiMin" min="0" max="100" placeholder="0" step="0.1" oninput="applyFilters()">
+                        </div>
+                        <div class="filter-group">
+                            <label for="avgOrderRoiMax" title="Filter traders with average order ROI less than or equal to this value">Avg Order ROI Max (%)</label>
+                            <input type="number" id="avgOrderRoiMax" min="0" max="100" placeholder="100" step="0.1" oninput="applyFilters()">
+                        </div>
+                        <div class="filter-group">
+                            <label for="tradingDaysMin" title="Filter traders with at least this many trading days">Min Trading Days</label>
+                            <input type="number" id="tradingDaysMin" min="0" placeholder="0" oninput="applyFilters()">
+                        </div>
+                        <div class="filter-group">
+                            <label for="tradingCoinsMin" title="Filter traders with at least this many unique coins traded">Min Trading Coins</label>
+                            <input type="number" id="tradingCoinsMin" min="0" placeholder="0" oninput="applyFilters()">
+                        </div>
+                    </div>
+                    <div class="filters-actions">
+                        <button class="btn btn-secondary" onclick="clearFilters()" title="Clear all active filters">
+                            <i class="fas fa-times"></i> Clear Filters
+                        </button>
+                        <button class="btn btn-primary" onclick="applyFilters()" title="Apply current filter values">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+                
                 <div class="table-container">
                     <table class="main-table" id="tradersTable">
                         <thead>
@@ -59,6 +115,7 @@
                                 <th>Avg Trade Size</th>
                                 <th>Wallet ROI</th>
                                 <th>Avg Order ROI</th>
+                                <th title="Number of unique days the trader has placed orders">Trading Days</th>
                                 <th>Unique Coins</th>
                                 <!-- <th>Actions</th> -->
                             </tr>

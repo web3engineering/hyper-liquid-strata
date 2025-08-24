@@ -15,6 +15,17 @@ export interface TraderStats {
   period: string;
 }
 
+export interface TraderFilters {
+  winRateMin?: number;
+  winRateMax?: number;
+  totalRoiMin?: number;
+  totalRoiMax?: number;
+  avgOrderRoiMin?: number;
+  avgOrderRoiMax?: number;
+  tradingDaysMin?: number;
+  tradingCoinsMin?: number;
+}
+
 export interface TraderDetail {
   wallet: string;
   stats: TraderStats[];
@@ -48,6 +59,7 @@ export class TraderService {
         cnt_unique_orders as total_trades,
         prct_win_rate as win_rate,
         avg_trade_usd_size as avg_trade_size,
+        cnt_trade_days,
         prct_wallet_roi,
         prct_avg_order_roi,
         cnt_unique_coins,
@@ -149,6 +161,7 @@ export class TraderService {
         cnt_unique_orders as total_trades,
         prct_win_rate as win_rate,
         avg_trade_usd_size as avg_trade_size,
+        cnt_trade_days,
         prct_wallet_roi,
         prct_avg_order_roi,
         cnt_unique_coins,
@@ -157,6 +170,88 @@ export class TraderService {
       WHERE wallet_address LIKE '%${searchTerm}%' ${periodFilter}
       ORDER BY total_pnl DESC
       LIMIT 50
+    `;
+
+    const result = await this.clickhouseService.query(query);
+    return result as unknown as TraderStats[];
+  }
+
+  async getFilteredTraders(
+    period: string = 'ALL',
+    filters: TraderFilters = {},
+  ): Promise<TraderStats[]> {
+    let periodFilter = '';
+    const whereConditions: string[] = [];
+
+    // Add period filter
+    if (period !== 'ALL') {
+      const periodMap: Record<string, string> = {
+        '1d': '1D',
+        '7d': '7D',
+        '30d': '30D',
+      };
+      const mappedPeriod = periodMap[period] || 'ALL';
+      periodFilter = `agg_period_type = '${mappedPeriod}'`;
+      whereConditions.push(periodFilter);
+    }
+
+    // Add win rate filters
+    if (filters.winRateMin !== undefined) {
+      whereConditions.push(`prct_win_rate >= ${filters.winRateMin}`);
+    }
+    if (filters.winRateMax !== undefined) {
+      whereConditions.push(`prct_win_rate <= ${filters.winRateMax}`);
+    }
+
+    // Add total ROI filters
+    if (filters.totalRoiMin !== undefined) {
+      whereConditions.push(`prct_wallet_roi >= ${filters.totalRoiMin}`);
+    }
+    if (filters.totalRoiMax !== undefined) {
+      whereConditions.push(`prct_wallet_roi <= ${filters.totalRoiMax}`);
+    }
+
+    // Add average order ROI filters
+    if (filters.avgOrderRoiMin !== undefined) {
+      whereConditions.push(`prct_avg_order_roi >= ${filters.avgOrderRoiMin}`);
+    }
+    if (filters.avgOrderRoiMax !== undefined) {
+      whereConditions.push(`prct_avg_order_roi <= ${filters.avgOrderRoiMax}`);
+    }
+
+    // Add trading days filter
+    if (filters.tradingDaysMin !== undefined) {
+      whereConditions.push(`cnt_trade_days >= ${filters.tradingDaysMin}`);
+    }
+
+    // Add trading coins filter
+    if (filters.tradingCoinsMin !== undefined) {
+      whereConditions.push(`cnt_unique_coins >= ${filters.tradingCoinsMin}`);
+    }
+
+    // Build WHERE clause
+    const whereClause =
+      whereConditions.length > 0
+        ? `WHERE ${whereConditions.join(' AND ')}`
+        : '';
+
+    const query = `
+      SELECT 
+        wallet_address as wallet,
+        total_pnl as pnl,
+        total_volume,
+        cnt_unique_orders as total_trades,
+        prct_win_rate as win_rate,
+        avg_trade_usd_size as avg_trade_size,
+        cnt_trade_days,
+        prct_wallet_roi,
+        prct_avg_order_roi,
+        cnt_unique_coins,
+        '${period}' as period
+      FROM hyperliquid.mv_wallet_stats_by_period
+      ${whereClause}
+      ORDER BY total_pnl DESC
+      LIMIT 100
     `;
 
     const result = await this.clickhouseService.query(query);
