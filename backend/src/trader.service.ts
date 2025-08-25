@@ -49,6 +49,8 @@ export class TraderService {
       };
       const mappedPeriod = periodMap[period] || 'ALL';
       periodFilter = `WHERE agg_period_type = '${mappedPeriod}'`;
+    } else {
+      periodFilter = `WHERE agg_period_type = 'ALL'`;
     }
 
     const query = `
@@ -151,6 +153,8 @@ export class TraderService {
       };
       const mappedPeriod = periodMap[period] || 'ALL';
       periodFilter = `AND agg_period_type = '${mappedPeriod}'`;
+    } else {
+      periodFilter = `AND agg_period_type = 'ALL'`;
     }
 
     const query = `
@@ -193,6 +197,8 @@ export class TraderService {
       const mappedPeriod = periodMap[period] || 'ALL';
       periodFilter = `agg_period_type = '${mappedPeriod}'`;
       whereConditions.push(periodFilter);
+    } else {
+      whereConditions.push(`agg_period_type = 'ALL'`);
     }
 
     // Add win rate filters
